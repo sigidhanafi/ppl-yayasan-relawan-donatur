@@ -73,10 +73,7 @@ export default function DonationForm({ activityId, onClose, isDisabled }) {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className='mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm'
-    >
+    <form onSubmit={onSubmit} className='mt-4 rounded-xl bg-white p-4'>
       <h3 className='text-lg font-semibold text-slate-900'>Form Donasi</h3>
       <p className='mt-1 text-sm text-slate-600'>
         Isi data berikut dan unggah bukti transfer. Berkas yang didukung: JPG,
@@ -199,7 +196,7 @@ export default function DonationForm({ activityId, onClose, isDisabled }) {
           onClick={onClose}
           className='rounded-lg bg-slate-200 px-4 py-2 text-slate-700 hover:bg-slate-300'
         >
-          Tutup Form
+          Cancel
         </button>
       </div>
     </form>
