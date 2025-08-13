@@ -1,0 +1,199 @@
+'use client';
+
+import { useState } from 'react';
+
+export default function VolunteerForm({ activityId, isDisabled, onClose }) {
+  const [loading, setLoading] = useState(false);
+  const [ok, setOk] = useState(null);
+  const [err, setErr] = useState(null);
+  const [botField, setBotField] = useState(''); // honeypot
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    setOk(null);
+    setErr(null);
+
+    if (botField) {
+      setErr('Terjadi kesalahan.');
+      return;
+    }
+
+    const form = new FormData(e.currentTarget);
+    const payload = {
+      name: String(form.get('name') || '').trim(),
+      email: String(form.get('email') || '').trim(),
+      phone: String(form.get('phone') || '').trim(),
+      availability: String(form.get('availability') || ''),
+      skills: String(form.get('skills') || ''),
+      notes: String(form.get('notes') || ''),
+      agree: form.get('agree') === 'on',
+    };
+
+    if (!payload.name || !payload.email || !payload.phone) {
+      setErr('Nama, email, dan nomor HP wajib diisi.');
+      return;
+    }
+    if (!payload.agree) {
+      setErr('Kamu harus menyetujui ketentuan relawan.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/activities/${activityId}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.message || 'Gagal mengirim formulir.');
+      }
+      setOk('Terima kasih! Pendaftaran kamu sudah kami terima. 📬');
+      e.currentTarget.reset();
+    } catch (e) {
+      setErr(e.message || 'Terjadi kesalahan.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit} className='mt-4 rounded-xl bg-white p-4'>
+      <h3 className='text-lg font-semibold text-slate-900'>
+        Daftar Sebagai Relawan
+      </h3>
+      <p className='mt-1 text-sm text-slate-600'>
+        Isi data di bawah ini. Kami akan menghubungi melalui WhatsApp/email
+        untuk konfirmasi.
+      </p>
+
+      {/* honeypot */}
+      <input
+        type='text'
+        name='company'
+        value={botField}
+        onChange={(e) => setBotField(e.target.value)}
+        className='hidden'
+        tabIndex={-1}
+        autoComplete='off'
+      />
+
+      <div className='mt-4 grid gap-3 md:grid-cols-2'>
+        <div>
+          <label className='block text-sm font-medium text-slate-700'>
+            Nama Lengkap *
+          </label>
+          <input
+            name='name'
+            required
+            className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
+            placeholder='Mis. Dina Lestari'
+          />
+        </div>
+        <div>
+          <label className='block text-sm font-medium text-slate-700'>
+            Email *
+          </label>
+          <input
+            type='email'
+            name='email'
+            required
+            className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
+            placeholder='nama@email.com'
+          />
+        </div>
+        <div>
+          <label className='block text-sm font-medium text-slate-700'>
+            No. HP/WhatsApp *
+          </label>
+          <input
+            type='tel'
+            name='phone'
+            required
+            className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
+            placeholder='08xxxxxxxxxx'
+          />
+        </div>
+        <div>
+          <label className='block text-sm font-medium text-slate-700'>
+            Ketersediaan Waktu
+          </label>
+          <select
+            name='availability'
+            defaultValue=''
+            className='mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-sky-500 focus:outline-none'
+          >
+            <option value='' disabled>
+              Pilih salah satu
+            </option>
+            <option>Hanya hari kegiatan</option>
+            <option>H-1 & hari kegiatan</option>
+            <option>Siap 1 minggu sebelum kegiatan</option>
+          </select>
+        </div>
+        <div className='md:col-span-2'>
+          <label className='block text-sm font-medium text-slate-700'>
+            Keahlian/Relevansi
+          </label>
+          <input
+            name='skills'
+            className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
+            placeholder='Mis. mengajar dasar, desain grafis, fotografi, logistik, dll.'
+          />
+        </div>
+        <div className='md:col-span-2'>
+          <label className='block text-sm font-medium text-slate-700'>
+            Catatan Tambahan
+          </label>
+          <textarea
+            name='notes'
+            rows={3}
+            className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
+            placeholder='Tulis hal yang perlu kami ketahui (alergi, transport, dll.)'
+          />
+        </div>
+      </div>
+
+      <label className='mt-4 inline-flex items-start gap-2 text-sm text-slate-700'>
+        <input type='checkbox' name='agree' className='mt-1' />
+        <span>
+          Saya menyetujui ketentuan relawan dan kebijakan privasi, serta
+          bersedia dihubungi panitia.
+        </span>
+      </label>
+
+      {err && (
+        <div className='mt-3 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700'>
+          {err}
+        </div>
+      )}
+      {ok && (
+        <div className='mt-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700'>
+          {ok}
+        </div>
+      )}
+
+      <div className='space-x-2'>
+        <button
+          type='submit'
+          disabled={loading || isDisabled}
+          className={`mt-4 inline-flex items-center rounded-lg px-4 py-2 font-medium text-white ${
+            loading || isDisabled
+              ? 'bg-slate-400 cursor-not-allowed'
+              : 'bg-emerald-600 hover:bg-emerald-700'
+          }`}
+        >
+          {loading ? 'Mengirim...' : 'Daftar'}
+        </button>
+        <button
+          type='button'
+          onClick={onClose}
+          className='rounded-lg bg-slate-200 px-4 py-2 text-slate-700 hover:bg-slate-300'
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}

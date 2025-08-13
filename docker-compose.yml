@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+      POSTGRES_DB: appdb
+    ports:
+      - '5432:5432' # remove if not needed from host
+    volumes:
+      - yayasan-indo-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U appuser -d appdb']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # Make sure SSR talks to the containerized DB, not localhost
+      - DATABASE_URL=postgresql://appuser:apppass@db:5432/appdb
+      # Stabilize file watching on macOS
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=800
+      - HOST=0.0.0.0
+      - PORT=3000
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/app:cached # mount source (hot reload)
+      - /app/node_modules # keep node_modules inside container
+      - /app/.next
+    restart: unless-stopped
+
+volumes:
+  yayasan-indo-data:
