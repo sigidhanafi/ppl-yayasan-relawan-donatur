@@ -44,7 +44,7 @@ export default function SignInButton({ buttonTitle, callbackUrl }) {
     <button
       onClick={handleClick}
       variant='default'
-      className='mt-4 w-full rounded-lg px-4 py-2 font-medium text-white bg-sky-600 hover:bg-sky-700'
+      className='mt-4 rounded-lg px-4 py-2 font-medium text-white bg-sky-600 hover:bg-sky-700'
     >
       {buttonTitle ? buttonTitle : 'Masuk dengan Google'}
     </button>

@@ -51,7 +51,7 @@ export default function RelawanCard({ act, isPast, params, session }) {
       {session && session.user && (
         <div id='daftar-relawan' className='mt-6'>
           <VolunteerForm
-            activityId={params.id}
+            activityId={act.id}
             isDisabled={isPast || act.slots === 0}
             onClose={() => setShowForm(false)}
             session={session}
