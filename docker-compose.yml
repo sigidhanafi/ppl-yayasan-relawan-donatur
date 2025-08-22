@@ -2,11 +2,12 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: appuser
-      POSTGRES_PASSWORD: apppass
-      POSTGRES_DB: appdb
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - '5432:5432' # remove if not needed from host
+      # - '5432:5432' # remove if not needed from host
+      - '127.0.0.1:5432:5432' # hapus ketika di production
     volumes:
       - yayasan-indo-data:/var/lib/postgresql/data
     healthcheck:
@@ -15,6 +16,8 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
+    networks:
+      - app-network
 
   web:
     build:
@@ -27,20 +30,49 @@ services:
       - .env
     environment:
       # Make sure SSR talks to the containerized DB, not localhost
-      - DATABASE_URL=postgresql://appuser:apppass@db:5432/appdb
+      - DATABASE_URL=${DATABASE_URL}
       # Stabilize file watching on macOS
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=800
       - HOST=0.0.0.0
       - PORT=3000
+      # next auth
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_DEBUG=${NEXTAUTH_DEBUG}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+
     ports:
       - '3000:3000'
     volumes:
       - ./:/app:cached # mount source (hot reload)
-      - /app/node_modules # keep node_modules inside container
-      - /app/.next
+      - node_modules:/app/node_modules # keep node_modules inside container
+      - next_cache:/app/.next
     restart: unless-stopped
+    command: |
+      sh -c '
+        if [ ! -d node_modules ] || [ -z "$(ls -A node_modules 2>/dev/null)" ]; then
+          echo ">> Installing deps inside container..."
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
+        fi
+        npx prisma generate
+        npx prisma migrate dev --name init || true
+        npm run dev
+      '
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   yayasan-indo-data:
+  node_modules:
+  next_cache:

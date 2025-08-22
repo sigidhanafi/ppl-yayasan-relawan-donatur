@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { activities } from '@/lib/mockActivities';
+import { activities } from '@/lib/services/activitiyService';
 
 export async function GET(_req, { params }) {
   const act = activities.find((a) => a.id === params.id);

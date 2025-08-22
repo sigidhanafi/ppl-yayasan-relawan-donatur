@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { getSession } from '@/lib/auth';
 import VolunteerForm from '@/components/VolunteerForm';
 import RelawanCard from '@/components/RelawanCard';
 import DonationCard from '@/components/DonationCard';
+import TopNav from '@/components/TopNav';
 
 async function getActivity(id) {
   const res = await fetch(
@@ -17,7 +19,10 @@ async function getActivity(id) {
 }
 
 export default async function ActivityDetailPage({ params }) {
-  const act = await getActivity(params.id);
+  const session = await getSession();
+  const { id } = await params;
+  const act = await getActivity(id);
+
   if (!act) {
     return (
       <main className='bg-white mx-auto max-w-3xl px-4 py-16'>
@@ -47,7 +52,10 @@ export default async function ActivityDetailPage({ params }) {
   });
 
   return (
-    <main className='bg-white'>
+    <main className='min-h-screen bg-white text-slate-900'>
+      {/* Top Nav */}
+      <TopNav user={session && session.user} />
+
       <section className='bg-white'>
         <div className='mx-auto max-w-5xl px-4 py-8'>
           {/* breadcrumb */}
@@ -236,7 +244,12 @@ export default async function ActivityDetailPage({ params }) {
               </div>
 
               {/* Card Kuota Relawan */}
-              <RelawanCard act={act} isPast={isPast} params={params} />
+              <RelawanCard
+                act={act}
+                isPast={isPast}
+                params={params}
+                session={session}
+              />
 
               {/* Card Donasi */}
               <DonationCard act={act} isPast={isPast} activityId={params.id} />
