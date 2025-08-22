@@ -39,12 +39,15 @@ export default function DonationForm({ activityId, onClose, isDisabled }) {
     const formEl = e.currentTarget;
     const fd = new FormData(formEl);
 
+    const name = String(fd.get('name') || '').trim();
+    const email = String(fd.get('email') || '').trim();
     const amount = Number(fd.get('amount') || 0);
-    if (!amount || amount <= 0) {
-      setErr('Nominal donasi harus lebih dari 0.');
+    const proof = fd.get('proof');
+    
+    if (!name || !email || !amount || amount <= 0) {
+      setErr('Nama, email, dan nominal donasi wajib diisi.');
       return;
     }
-    const proof = fd.get('proof');
     if (!(proof instanceof File) || !proof.name) {
       setErr('Mohon unggah bukti transfer.');
       return;
@@ -63,8 +66,6 @@ export default function DonationForm({ activityId, onClose, isDisabled }) {
       setOk('Terima kasih! Donasi kamu telah diterima. 🙏');
       formEl.reset();
       setPreview(null);
-      // opsional: tutup form setelah sukses
-      // onClose?.();
     } catch (e) {
       setErr(e.message || 'Terjadi kesalahan.');
     } finally {
@@ -83,24 +84,38 @@ export default function DonationForm({ activityId, onClose, isDisabled }) {
       <div className='mt-4 grid gap-3 md:grid-cols-2'>
         <div>
           <label className='block text-sm font-medium text-slate-700'>
-            Nama Lengkap
+            Nama Lengkap *
           </label>
           <input
             name='name'
             className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
             placeholder='Mis. Andi Pratama'
+            required
           />
         </div>
 
         <div>
           <label className='block text-sm font-medium text-slate-700'>
-            Email
+            Email *
           </label>
           <input
             type='email'
             name='email'
             className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
             placeholder='nama@email.com'
+            required
+          />
+        </div>
+
+        <div>
+          <label className='block text-sm font-medium text-slate-700'>
+            No. HP/WhatsApp (opsional)
+          </label>
+          <input
+            type='tel'
+            name='phone'
+            className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
+            placeholder='08xxxxxxxxxx'
           />
         </div>
 
@@ -136,13 +151,13 @@ export default function DonationForm({ activityId, onClose, isDisabled }) {
 
         <div className='md:col-span-2'>
           <label className='block text-sm font-medium text-slate-700'>
-            Catatan
+            Pesan (opsional)
           </label>
           <textarea
-            name='notes'
+            name='message'
             rows={3}
             className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
-            placeholder='Kesan/pesan khusus untuk panitia (opsional)'
+            placeholder='Kesan/pesan khusus untuk panitia'
           />
         </div>
 
