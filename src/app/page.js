@@ -1,35 +1,15 @@
-'use client';
+import { getSession } from '@/lib/auth';
+import TopNav from '@/components/TopNav';
+import ActivityList from '@/components/ActivityList';
 
-import { useEffect, useMemo, useState } from 'react';
-import ActivityCard from '@/components/ActivityCard';
-
-const CATEGORIES = ['all', 'Edukasi', 'Sosial', 'Kesehatan'];
-
-export default function HomePage() {
-  const [q, setQ] = useState('');
-  const [category, setCategory] = useState('all');
-  const [upcoming, setUpcoming] = useState(true);
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const queryString = useMemo(() => {
-    const sp = new URLSearchParams();
-    if (q) sp.set('q', q);
-    if (category) sp.set('category', category);
-    if (upcoming) sp.set('upcoming', 'true');
-    return sp.toString();
-  }, [q, category, upcoming]);
-
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/activities?${queryString}`)
-      .then((r) => r.json())
-      .then((res) => setItems(res.data || []))
-      .finally(() => setLoading(false));
-  }, [queryString]);
+export default async function HomePage() {
+  const session = await getSession();
 
   return (
     <main className='min-h-screen bg-white text-slate-900'>
+      {/* Top Nav */}
+      <TopNav user={session && session.user} />
+
       {/* Hero */}
       <section className='bg-gradient-to-b from-sky-50 to-white'>
         <div className='mx-auto max-w-6xl px-4 py-12'>
@@ -42,7 +22,7 @@ export default function HomePage() {
           </p>
 
           {/* Filters */}
-          <div className='mt-8 grid grid-cols-1 md:grid-cols-4 gap-3'>
+          {/* <div className='mt-8 grid grid-cols-1 md:grid-cols-4 gap-3'>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -82,26 +62,12 @@ export default function HomePage() {
             >
               Reset
             </button>
-          </div>
+          </div> */}
         </div>
       </section>
 
       {/* Grid */}
-      <section className='mx-auto max-w-6xl px-4 pb-16'>
-        {loading ? (
-          <div className='py-12 text-center text-slate-500'>Memuat…</div>
-        ) : items.length === 0 ? (
-          <div className='py-16 text-center text-slate-500'>
-            Tidak ada kegiatan ditemukan.
-          </div>
-        ) : (
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {items.map((a) => (
-              <ActivityCard key={a.id} a={a} />
-            ))}
-          </div>
-        )}
-      </section>
+      <ActivityList />
     </main>
   );
 }

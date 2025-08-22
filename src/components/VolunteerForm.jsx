@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 
-export default function VolunteerForm({ activityId, isDisabled, onClose }) {
+export default function VolunteerForm({
+  activityId,
+  isDisabled,
+  onClose,
+  session,
+}) {
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(null);
   const [err, setErr] = useState(null);
@@ -59,25 +64,13 @@ export default function VolunteerForm({ activityId, isDisabled, onClose }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className='mt-4 rounded-xl bg-white p-4'>
+    <form
+      onSubmit={onSubmit}
+      className='mt-4 bg-white p-4 border-t-1 border-gray-200'
+    >
       <h3 className='text-lg font-semibold text-slate-900'>
-        Daftar Sebagai Relawan
+        Konfirmasi Data Relawan
       </h3>
-      <p className='mt-1 text-sm text-slate-600'>
-        Isi data di bawah ini. Kami akan menghubungi melalui WhatsApp/email
-        untuk konfirmasi.
-      </p>
-
-      {/* honeypot */}
-      <input
-        type='text'
-        name='company'
-        value={botField}
-        onChange={(e) => setBotField(e.target.value)}
-        className='hidden'
-        tabIndex={-1}
-        autoComplete='off'
-      />
 
       <div className='mt-4 grid gap-3 md:grid-cols-2'>
         <div>
@@ -89,6 +82,7 @@ export default function VolunteerForm({ activityId, isDisabled, onClose }) {
             required
             className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
             placeholder='Mis. Dina Lestari'
+            defaultValue={session.user.name}
           />
         </div>
         <div>
@@ -101,6 +95,7 @@ export default function VolunteerForm({ activityId, isDisabled, onClose }) {
             required
             className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
             placeholder='nama@email.com'
+            defaultValue={session.user.email}
           />
         </div>
         <div>
@@ -113,33 +108,7 @@ export default function VolunteerForm({ activityId, isDisabled, onClose }) {
             required
             className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
             placeholder='08xxxxxxxxxx'
-          />
-        </div>
-        <div>
-          <label className='block text-sm font-medium text-slate-700'>
-            Ketersediaan Waktu
-          </label>
-          <select
-            name='availability'
-            defaultValue=''
-            className='mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-sky-500 focus:outline-none'
-          >
-            <option value='' disabled>
-              Pilih salah satu
-            </option>
-            <option>Hanya hari kegiatan</option>
-            <option>H-1 & hari kegiatan</option>
-            <option>Siap 1 minggu sebelum kegiatan</option>
-          </select>
-        </div>
-        <div className='md:col-span-2'>
-          <label className='block text-sm font-medium text-slate-700'>
-            Keahlian/Relevansi
-          </label>
-          <input
-            name='skills'
-            className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
-            placeholder='Mis. mengajar dasar, desain grafis, fotografi, logistik, dll.'
+            defaultValue={session.user.phone}
           />
         </div>
         <div className='md:col-span-2'>

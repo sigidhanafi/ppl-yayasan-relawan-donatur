@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { activities } from '@/lib/mockActivities';
+import { activities } from '@/lib/services/activitiyService';
 
 const mock = activities;
 
