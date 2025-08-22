@@ -45,7 +45,7 @@ export default function VolunteerForm({
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/activities/${activityId}/register`, {
+      const res = await fetch(`/api/activities/${activityId}/volunteer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -54,8 +54,10 @@ export default function VolunteerForm({
         const j = await res.json().catch(() => ({}));
         throw new Error(j?.message || 'Gagal mengirim formulir.');
       }
-      setOk('Terima kasih! Pendaftaran kamu sudah kami terima. 📬');
-      e.currentTarget.reset();
+      setOk(
+        'Terima kasih! Pendaftaran kamu sudah kami terima. Silahkan tunggu approval dari Yayasan.'
+      );
+      // e.currentTarget.reset();
     } catch (e) {
       setErr(e.message || 'Terjadi kesalahan.');
     } finally {

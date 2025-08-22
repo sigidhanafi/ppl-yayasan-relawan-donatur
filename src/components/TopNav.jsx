@@ -17,7 +17,7 @@ export default function TopNav({ user }) {
           >
             Home
           </a>
-          {user && (
+          {user && user.role == 'ORGANISASI' && (
             <a
               href='/dashboard'
               className='rounded-md px-3 py-2 font-medium text-slate-900 bg-slate-100'
@@ -44,22 +44,23 @@ export default function TopNav({ user }) {
             <button
               onClick={() => setOpen(!open)}
               className='inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-slate-700 hover:bg-slate-100'
-              title={user?.name || 'Profil'}
+              title={user.name || 'Profil'}
             >
+              <>{user.name}</>
               <CircleUser className='h-6 w-6' />
             </button>
 
             {open && (
               <div className='absolute right-0 mt-2 w-40 rounded-md border border-slate-200 bg-white shadow-md'>
-                <a
+                {/* <a
                   href='/profile'
                   className='block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50'
                 >
                   Profil
-                </a>
+                </a> */}
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className='w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50'
+                  className='w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer'
                 >
                   Logout
                 </button>

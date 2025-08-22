@@ -8,7 +8,7 @@ export default async function HomePage() {
   return (
     <main className='min-h-screen bg-white text-slate-900'>
       {/* Top Nav */}
-      <TopNav user={session && session.user} />
+      <TopNav user={session ? session.user : null} />
 
       {/* Hero */}
       <section className='bg-gradient-to-b from-sky-50 to-white'>
