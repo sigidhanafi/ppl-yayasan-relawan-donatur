@@ -98,7 +98,6 @@ model User {
 
   // lainnya
   volunteerActivities VolunteerActivity[]
-  donations           Donation[]
   notifications       Notification[]
 
   // NextAuth relations
@@ -162,8 +161,6 @@ model VolunteerActivity {
 
 model Donation {
   id            Int            @id @default(autoincrement())
-  user          User?          @relation(fields: [userId], references: [id])
-  userId        Int?
 
   activity      Activity       @relation(fields: [activityId], references: [id])
   activityId    Int
@@ -181,7 +178,6 @@ model Donation {
   updatedAt     DateTime       @updatedAt
 
   @@index([activityId, status])
-  @@index([userId])
   @@index([email])
 }
 
