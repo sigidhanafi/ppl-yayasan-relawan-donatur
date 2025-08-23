@@ -18,7 +18,7 @@ export default function ActivityCard({ a }) {
         </div>
       )}
 
-      <div className='flex items-center gap-2 text-xs'>
+      {/* <div className='flex items-center gap-2 text-xs'>
         <span className='inline-flex items-center rounded-md bg-sky-100 px-2 py-0.5 font-medium text-sky-700'>
           {a.category}
         </span>
@@ -29,13 +29,13 @@ export default function ActivityCard({ a }) {
         >
           {isPast ? 'Selesai' : 'Akan datang'}
         </span>
-      </div>
+      </div> */}
 
       <h3 className='mt-2 text-lg font-semibold leading-tight text-slate-900'>
-        {a.title}
+        {a.name}
       </h3>
       <p className='mt-1 line-clamp-2 text-sm text-slate-700'>
-        {a.summary ?? '—'}
+        {a.description ?? '—'}
       </p>
 
       <div className='mt-3 grid grid-cols-2 gap-2 text-xs text-slate-700'>

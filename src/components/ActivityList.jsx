@@ -9,6 +9,7 @@ export default function ActivityList() {
   const [category, setCategory] = useState('all');
   const [upcoming, setUpcoming] = useState(true);
   const [items, setItems] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const queryString = useMemo(() => {
@@ -20,11 +21,28 @@ export default function ActivityList() {
   }, [q, category, upcoming]);
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`/api/activities?${queryString}`)
-      .then((r) => r.json())
-      .then((res) => setItems(res.data || []))
-      .finally(() => setLoading(false));
+    let ignore = false;
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/activities?${queryString}`);
+        const data = await res.json();
+        if (!ignore) {
+          setItems(data.items || []); // sesuai struktur respons API
+          setTotal(data.total || 0);
+        }
+      } catch (err) {
+        console.error('Failed fetch activities:', err);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    };
+
+    loadData();
+
+    return () => {
+      ignore = true; // cleanup
+    };
   }, [queryString]);
 
   return (
