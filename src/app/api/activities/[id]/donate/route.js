@@ -1,24 +1,48 @@
+// app/api/activities/[id]/donate/route.js
 import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { PrismaClient, Prisma } from '@prisma/client';
 
-export const runtime = 'nodejs'; // pastikan Node.js runtime (bukan edge)
+export const runtime = 'nodejs';
+
+const prisma = new PrismaClient();
 
 export async function POST(req, { params }) {
   try {
-    const id = params.id;
-    const form = await req.formData();
+    const id = params.id; // Fix: Mengakses properti id secara langsung
+    const activityId = parseInt(id, 10);
 
+    if (isNaN(activityId)) {
+      return NextResponse.json(
+        { message: 'ID kegiatan tidak valid.' },
+        { status: 400 }
+      );
+    }
+    
+    // Perbaikan: Memastikan activityId ada di database
+    const activityExists = await prisma.activity.findUnique({
+      where: { id: activityId },
+    });
+    if (!activityExists) {
+      return NextResponse.json(
+        { message: 'Kegiatan tidak ditemukan.' },
+        { status: 404 }
+      );
+    }
+
+    const form = await req.formData();
     const name = form.get('name') || '';
     const email = form.get('email') || '';
+    const phone = form.get('phone') || '';
     const amount = Number(form.get('amount') || 0);
     const method = form.get('method') || 'transfer';
-    const notes = form.get('notes') || '';
+    const message = form.get('message') || '';
     const file = form.get('proof');
 
-    if (!amount || amount <= 0) {
+    if (!name || !email || !amount || amount <= 0) {
       return NextResponse.json(
-        { message: 'Nominal donasi tidak valid.' },
+        { message: 'Nama, email, dan nominal donasi tidak valid.' },
         { status: 422 }
       );
     }
@@ -35,33 +59,48 @@ export async function POST(req, { params }) {
       );
     }
 
-    // simpan file ke /tmp/uploads (ephemeral di serverless; persistent di container dev)
     const uploadsDir = '/tmp/uploads';
     await mkdir(uploadsDir, { recursive: true });
 
     const ext = file.type.startsWith('image/')
       ? file.type.split('/')[1] || 'jpg'
       : 'pdf';
-    const safeName = `bukti-${id}-${Date.now()}.${ext}`;
-    const dest = path.join(uploadsDir, safeName);
+    const safeName = `bukti-${activityId}-${Date.now()}.${ext}`;
+    const proofPath = path.join(uploadsDir, safeName);
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    await writeFile(dest, buffer);
+    await writeFile(proofPath, buffer);
 
-    // TODO: simpan metadata donasi ke DB jika diperlukan
+    const donation = await prisma.donation.create({
+      data: {
+        activityId,
+        name,
+        email,
+        phone,
+        amount: new Prisma.Decimal(amount),
+        method,
+        message,
+        proofPath,
+        status: 'PENDING',
+      },
+    });
+
+    console.log('Donasi berhasil disimpan:', donation);
+
     return NextResponse.json({
       ok: true,
-      activityId: id,
-      storedFile: `/tmp/uploads/${safeName}`, // hanya informasi; jangan diekspos publik di prod
-      data: { name, email, amount, method, notes },
-      receivedAt: new Date().toISOString(),
+      activityId: donation.activityId,
+      donationId: donation.id,
+      message: 'Donasi berhasil dikirim. Menunggu verifikasi.',
     });
   } catch (e) {
-    console.error(e);
+    console.error('API Error:', e);
     return NextResponse.json(
-      { message: 'Gagal memproses donasi.' },
+      { message: 'Gagal memproses donasi. Silakan coba lagi.' },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }
