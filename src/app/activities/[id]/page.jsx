@@ -5,6 +5,7 @@ import RelawanCard from '@/components/RelawanCard';
 import DonationCard from '@/components/DonationCard';
 import TopNav from '@/components/TopNav';
 import RelawanList from '@/components/RelawanList';
+import ActivityAction from '@/components/ActivityAction';
 
 async function getActivity(id) {
   try {
@@ -24,8 +25,6 @@ export default async function ActivityDetailPage({ params }) {
   const session = await getSession();
   const { id } = await params;
   const act = await getActivity(id);
-
-  console.log('ACT', act);
 
   if (!act) {
     return (
@@ -280,6 +279,10 @@ export default async function ActivityDetailPage({ params }) {
 
               {/* Card Donasi */}
               {/* <DonationCard act={act} isPast={isPast} activityId={params.id} /> */}
+
+              {session && session.user.role == 'ORGANISASI' && (
+                <ActivityAction activityId={act.id} />
+              )}
             </div>
           </div>
         </div>

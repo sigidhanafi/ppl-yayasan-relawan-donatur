@@ -17,8 +17,8 @@ export default async function HomePage() {
             Kegiatan Yayasan Anda
           </h1>
           <p className='mt-3 text-slate-700'>
-            Temukan kegiatan sosial, edukasi, dan kesehatan. Ayo bergabung
-            sebagai relawan!
+            Kelola kegiatan sosial, edukasi, dan kesehatan dari Yayasan Anda,
+            lalu bagikan progres kepada relawan dan donatur.
           </p>
 
           {/* Filters */}
@@ -67,7 +67,11 @@ export default async function HomePage() {
       </section>
 
       {/* Grid */}
-      <ActivityList />
+      <ActivityList
+        isShowAdd={
+          session && session.user && session.user.organizationId != null
+        }
+      />
     </main>
   );
 }

@@ -121,12 +121,17 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(_req, { params }) {
   try {
-    const id = Number(params.id);
-    if (Number.isNaN(id))
+    const { id } = await params;
+    const idParam = parseInt(id);
+
+    if (!idParam || Number.isNaN(idParam)) {
       return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
-    await prisma.activity.delete({ where: { id } });
+    }
+
+    await prisma.activity.delete({ where: { id: idParam } });
     return NextResponse.json({ ok: true });
   } catch (e) {
+    console.log(e);
     if (e.code === 'P2025')
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(

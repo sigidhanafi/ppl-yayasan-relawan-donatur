@@ -27,14 +27,23 @@ export default function TopNav({ user }) {
 
   const links = useMemo(
     () => [
-      { href: '/', label: 'Home', show: true },
+      { href: '/', label: 'Semua Kegiatan', show: true },
       {
         href: '/dashboard',
-        label: 'Dashboard',
+        label: 'Organisasi',
         show: user && user.role === 'ORGANISASI',
       },
-      { href: '/activities', label: 'Aktivitas', show: true },
-      { href: '/notifications', label: 'Notifikasi', show: true },
+      {
+        href: '/activities',
+        label: 'Kegiatan',
+        show: true,
+        show: user && user.role === 'ORGANISASI',
+      },
+      {
+        href: '/notifications',
+        label: 'Notifikasi',
+        show: user,
+      },
     ],
     [user]
   );
@@ -42,7 +51,7 @@ export default function TopNav({ user }) {
   return (
     <header className='sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200'>
       <div className='mx-auto max-w-6xl px-4 h-14 flex items-center justify-between'>
-        <nav className='flex items-center gap-2 text-sm'>
+        <nav className='flex items-center'>
           {links
             .filter((l) => l.show)
             .map(({ href, label }) => {
@@ -53,10 +62,10 @@ export default function TopNav({ user }) {
                   href={href}
                   aria-current={active ? 'page' : undefined}
                   className={cx(
-                    'rounded-md px-3 py-2 font-medium transition-colors',
+                    'px-6 py-4 font-medium transition-colors',
                     active
-                      ? 'text-slate-900 bg-slate-100'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                      ? 'text-slate-900 bg-cyan-200'
+                      : 'text-slate-600 hover:bg-cyan-200 hover:text-slate-900'
                   )}
                 >
                   {label}

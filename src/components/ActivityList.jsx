@@ -1,10 +1,11 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import ActivityCard from '@/components/ActivityCard';
+import ActivityCreateCard from './ActivityCreateCard';
 
 const CATEGORIES = ['all', 'Edukasi', 'Sosial', 'Kesehatan'];
 
-export default function ActivityList() {
+export default function ActivityList({ isShowAdd }) {
   const [q, setQ] = useState('');
   const [category, setCategory] = useState('all');
   const [upcoming, setUpcoming] = useState(true);
@@ -55,6 +56,7 @@ export default function ActivityList() {
         </div>
       ) : (
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {isShowAdd && <ActivityCreateCard />}
           {items.map((a) => (
             <ActivityCard key={a.id} a={a} />
           ))}
