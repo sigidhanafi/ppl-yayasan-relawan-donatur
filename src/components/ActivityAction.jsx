@@ -34,7 +34,7 @@ export default function ActivityAction({ activityId }) {
     <div className='flex gap-3 mt-4'>
       <button
         onClick={handleEdit}
-        className='rounded-md bg-blue-400 px-4 py-2 text-white hover:bg-blue-500'
+        className='rounded-md bg-sky-500 px-4 py-2 font-medium text-white hover:bg-sky-600'
       >
         Perbaharui Data
       </button>

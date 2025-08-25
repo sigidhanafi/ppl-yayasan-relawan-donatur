@@ -49,7 +49,7 @@ export default function RelawanList({ rows: initialRows }) {
       setRows((prev) =>
         prev.map((r) =>
           r.id === id
-            ? { ...r, status: action === 'approve' ? 'APPROVED' : 'REJECTED' }
+            ? { ...r, status: action === 'approve' ? 'VERIFIED' : 'REJECTED' }
             : r
         )
       );

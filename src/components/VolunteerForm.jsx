@@ -85,6 +85,7 @@ export default function VolunteerForm({
             className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
             placeholder='Mis. Dina Lestari'
             defaultValue={session.user.name}
+            readOnly
           />
         </div>
         <div>
@@ -98,6 +99,7 @@ export default function VolunteerForm({
             className='mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
             placeholder='nama@email.com'
             defaultValue={session.user.email}
+            readOnly
           />
         </div>
         <div>
