@@ -23,6 +23,13 @@ export const authOptions = {
         session.user.id = user.id;
         session.user.role = user.role;
         session.user.address = user.address ?? null;
+
+        // relasi tidak ikut, jadi query dulu
+        const org = await prisma.organization.findUnique({
+          where: { ownerId: user.id },
+          select: { id: true },
+        });
+        session.user.organizationId = org?.id ?? null;
       }
       return session;
     },

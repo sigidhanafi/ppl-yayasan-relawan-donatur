@@ -14,7 +14,7 @@ export default async function HomePage() {
       <section className='bg-gradient-to-b from-sky-50 to-white'>
         <div className='mx-auto max-w-6xl px-4 py-12'>
           <h1 className='text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900'>
-            Kegiatan Yayasan & Relawan
+            Kegiatan Yayasan Anda
           </h1>
           <p className='mt-3 text-slate-700'>
             Temukan kegiatan sosial, edukasi, dan kesehatan. Ayo bergabung

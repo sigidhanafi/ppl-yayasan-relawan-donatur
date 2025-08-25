@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { toUTC, nonNegOrNull, assertRequired } from '@/lib/util';
+import {
+  toUTC,
+  nonNegOrNull,
+  assertRequired,
+  parseDateAny,
+  pickStatus,
+} from '@/lib/util';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 // GET /api/activities?status=&orgId=&q=&page=1&pageSize=10
 export async function GET(req) {
@@ -66,17 +74,32 @@ export async function POST(req) {
     const body = await req.json();
     assertRequired(body, ['organizationId', 'name', 'description', 'date']);
 
+    // (opsional) enforce via session
+    const session = await getServerSession(authOptions);
+    const sessionOrgId = session?.user?.organizationId ?? null;
+    if (!session?.user?.id) {
+      const e = new Error('Unauthorized');
+      e.code = 'UNAUTHORIZED';
+      throw e;
+    }
+    // Jika ingin strict: hanya boleh create untuk org miliknya
+    if (sessionOrgId && Number(body.organizationId) !== sessionOrgId) {
+      const e = new Error('Organization tidak sesuai dengan akun Anda.');
+      e.code = 'FORBIDDEN';
+      throw e;
+    }
+
     const created = await prisma.activity.create({
       data: {
         organizationId: Number(body.organizationId),
         name: String(body.name),
         description: String(body.description),
-        date: toUTC(String(body.date)),
-        status: body.status || 'DRAFT',
+        date: parseDateAny(body.date),
+        status: pickStatus(body.status),
         volunteerRequirement: body.volunteerRequirement ?? null,
         donationInstruction: body.donationInstruction ?? null,
         location: body.location ?? null,
-        quota: nonNegOrNull(body.quota), // <= validasi non-negatif
+        quota: nonNegOrNull(body.quota),
         coverUrl: body.coverUrl ?? null,
       },
       select: { id: true },
@@ -84,9 +107,28 @@ export async function POST(req) {
 
     return NextResponse.json({ id: created.id }, { status: 201 });
   } catch (e) {
+    console.log('E', e);
+    // Prisma FK/constraint errors
+    if (e?.code === 'P2003') {
+      // foreign key failed
+      return NextResponse.json(
+        { error: 'Organization tidak ditemukan.' },
+        { status: 422 }
+      );
+    }
+    if (e?.code === 'VALIDATION') {
+      return NextResponse.json({ error: e.message }, { status: 422 });
+    }
+    if (e?.code === 'UNAUTHORIZED') {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    if (e?.code === 'FORBIDDEN') {
+      return NextResponse.json({ error: e.message }, { status: 403 });
+    }
+    console.error('POST /api/activities error:', e);
     return NextResponse.json(
-      { error: e?.message || 'Invalid payload' },
-      { status: 400 }
+      { error: 'Internal Server Error' },
+      { status: 500 }
     );
   }
 }

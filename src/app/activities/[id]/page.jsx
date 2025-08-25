@@ -208,7 +208,8 @@ export default async function ActivityDetailPage({ params }) {
                     </h2>
 
                     <p className='mt-2 text-slate-700 text-base leading-relaxed'>
-                      {act.volunteerRequirement ?? 'Tidak ada deskripsi.'}
+                      {act.volunteerRequirement ??
+                        'Tidak ada syarat kandidat relawan.'}
                     </p>
 
                     {/* {Array.isArray(act.requirements) &&
@@ -231,7 +232,11 @@ export default async function ActivityDetailPage({ params }) {
                       Tata Cara Berdonasi
                     </h2>
 
-                    {act.donation_instructions ? (
+                    <p className='mt-2 text-slate-700 text-base leading-relaxed'>
+                      {act.donationInsturction ?? 'Tidak ada cara berdonasi.'}
+                    </p>
+
+                    {/* {act.donation_instructions ? (
                       // whitespace-pre-line agar baris baru dari string ikut tampil rapi
                       <p className='mt-2 text-slate-700 text-base leading-relaxed whitespace-pre-line'>
                         {act.donation_instructions}
@@ -246,7 +251,7 @@ export default async function ActivityDetailPage({ params }) {
                           Unggah bukti pembayaran (bila diminta) dan konfirmasi.
                         </li>
                       </ol>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>
