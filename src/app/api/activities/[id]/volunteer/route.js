@@ -98,14 +98,28 @@ export async function POST(req, ctx) {
     // }
 
     // --- create volunteer activity ---
-    // NB: Anda punya constraint @@unique([userId, activityId]) → handle P2002
     try {
-      await prisma.volunteerActivity.create({
+      const volunteer = await prisma.volunteerActivity.create({
         data: {
           userId: dbUser.id,
           activityId: activity.id,
           status: 'PENDING', // VerificationStatus enum
           // appliedAt: default now()
+        },
+        include: {
+          activity: {
+            include: { organization: true },
+          },
+        },
+      });
+
+      // CREATE NOTIFICATION
+      await prisma.notification.create({
+        data: {
+          userId: volunteer.activity.organization.ownerId, // id owner organisasi
+          message: `${session.user.name} mendaftar sebagai relawan di ${volunteer.activity.name}`,
+          kind: 'VOLUNTEER_APPLY',
+          url: `/activities/${activity.id}`,
         },
       });
     } catch (e) {

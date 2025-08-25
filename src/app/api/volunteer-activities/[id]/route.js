@@ -12,7 +12,8 @@ async function assertOwnershipByVolunteerActivityId(id, sessionOrgId) {
     select: {
       id: true,
       status: true,
-      activity: { select: { organizationId: true } },
+      activity: { select: { id: true, name: true, organizationId: true } },
+      user: { select: { id: true, name: true, email: true } },
     },
   });
   if (!va) {
@@ -87,6 +88,16 @@ export async function PATCH(req, { params }) {
         status: true,
         user: { select: { id: true, name: true, email: true } },
         activityId: true,
+      },
+    });
+
+    // CREATE NOTIFICATION
+    await prisma.notification.create({
+      data: {
+        userId: va.user.id, // user yang di approve / di reject
+        message: `Pendaftaran relawan pada kegiatan ${va.activity.name} telah di-${targetStatus} oleh penyelenggara kegiatan.`,
+        kind: 'VOLUNTEER_APPROVAL',
+        url: `/activities/${va.activity.id}`,
       },
     });
 

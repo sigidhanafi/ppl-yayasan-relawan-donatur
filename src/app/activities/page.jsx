@@ -11,7 +11,7 @@ export default async function HomePage() {
       <TopNav user={session && session.user} />
 
       {/* Hero */}
-      <section className='bg-gradient-to-b from-sky-50 to-white'>
+      <section className=''>
         <div className='mx-auto max-w-6xl px-4 py-12'>
           <h1 className='text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900'>
             Kegiatan Yayasan Anda
