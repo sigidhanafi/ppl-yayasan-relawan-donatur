@@ -4,13 +4,13 @@ import { useState } from 'react';
 
 function StatusBadge({ status }) {
   const color =
-    status === 'APPROVED'
+    status === 'VERIFIED'
       ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
       : status === 'REJECTED'
       ? 'bg-rose-100 text-rose-800 border-rose-200'
       : 'bg-amber-100 text-amber-800 border-amber-200';
   const label =
-    status === 'APPROVED'
+    status === 'VERIFIED'
       ? 'Disetujui'
       : status === 'REJECTED'
       ? 'Ditolak'
@@ -30,22 +30,25 @@ export default function RelawanList({ rows: initialRows }) {
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
 
-  async function callAction(vaId, action) {
-    setBusyId(vaId);
+  async function callAction(id, action) {
+    setBusyId(id);
     setMsg(null);
     setErr(null);
     try {
       // Panggil endpoint kamu (buat di /api/volunteers/[id]/approve & /reject)
-      const res = await fetch(`/api/volunteers/${vaId}/${action}`, {
-        method: 'POST',
+      const res = await fetch(`/api/volunteer-activities/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: action }), // approve atau 'reject'
       });
+
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j?.message || `Gagal ${action}.`);
 
       // update UI lokal
       setRows((prev) =>
         prev.map((r) =>
-          r.vaId === vaId
+          r.id === id
             ? { ...r, status: action === 'approve' ? 'APPROVED' : 'REJECTED' }
             : r
         )
@@ -54,8 +57,14 @@ export default function RelawanList({ rows: initialRows }) {
         j?.message ||
           `Berhasil ${action === 'approve' ? 'menyetujui' : 'menolak'} relawan.`
       );
+
+      // auto hide setelah 2 detik
+      setTimeout(() => setMsg(null), 2000);
     } catch (e) {
       setErr(e.message || 'Terjadi kesalahan.');
+
+      // auto hide setelah 2 detik
+      setTimeout(() => setErr(null), 2000);
     } finally {
       setBusyId(null);
     }
@@ -109,11 +118,11 @@ export default function RelawanList({ rows: initialRows }) {
                 <td className='px-4 py-3'>
                   <div className='flex justify-end gap-2'>
                     <button
-                      onClick={() => callAction(r.vaId, 'approve')}
-                      disabled={busyId === r.vaId || r.status === 'APPROVED'}
+                      onClick={() => callAction(r.id, 'approve')}
+                      disabled={busyId === r.id || r.status === 'VERIFIED'}
                       className={`rounded-md px-3 py-1.5 text-xs font-medium text-white 
                         ${
-                          busyId === r.vaId || r.status === 'APPROVED'
+                          busyId === r.id || r.status === 'VERIFIED'
                             ? 'bg-slate-400 cursor-not-allowed'
                             : 'bg-emerald-600 hover:bg-emerald-700'
                         }`}
@@ -121,11 +130,11 @@ export default function RelawanList({ rows: initialRows }) {
                       Approve
                     </button>
                     <button
-                      onClick={() => callAction(r.vaId, 'reject')}
-                      disabled={busyId === r.vaId || r.status === 'REJECTED'}
+                      onClick={() => callAction(r.id, 'reject')}
+                      disabled={busyId === r.id || r.status === 'REJECTED'}
                       className={`rounded-md px-3 py-1.5 text-xs font-medium text-white 
                         ${
-                          busyId === r.vaId || r.status === 'REJECTED'
+                          busyId === r.id || r.status === 'REJECTED'
                             ? 'bg-slate-400 cursor-not-allowed'
                             : 'bg-rose-600 hover:bg-rose-700'
                         }`}
