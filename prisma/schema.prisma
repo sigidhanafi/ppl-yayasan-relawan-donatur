@@ -133,6 +133,12 @@ model Activity {
   description    String
   date           DateTime
   status         ActivityStatus @default(DRAFT)
+  volunteerRequirement String?
+  donationInstruction  String?
+
+  location             String?
+  quota                Int?
+  coverUrl             String?
 
   // relasi
   volunteers     VolunteerActivity[]

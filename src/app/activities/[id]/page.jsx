@@ -4,18 +4,21 @@ import VolunteerForm from '@/components/VolunteerForm';
 import RelawanCard from '@/components/RelawanCard';
 import DonationCard from '@/components/DonationCard';
 import TopNav from '@/components/TopNav';
+import RelawanList from '@/components/RelawanList';
+import ActivityAction from '@/components/ActivityAction';
 
 async function getActivity(id) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL ?? ''}/api/activities/${id}`,
-    { cache: 'no-store' }
-  );
-  if (!res.ok) {
-    const r2 = await fetch(`/api/activities/${id}`, { cache: 'no-store' });
-    if (!r2.ok) return null;
-    return (await r2.json()).data;
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL ?? ''}/api/activities/${id}`,
+      { cache: 'no-store' }
+    );
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error('Failed fetch activities:', err);
+  } finally {
   }
-  return (await res.json()).data;
 }
 
 export default async function ActivityDetailPage({ params }) {
@@ -68,7 +71,7 @@ export default async function ActivityDetailPage({ params }) {
               Kegiatan
             </Link>
             <span className='mx-2'>/</span>
-            <span className='text-slate-900'>{act.title}</span>
+            <span className='text-slate-900'>{act.name}</span>
           </nav>
 
           {/* header */}
@@ -93,11 +96,11 @@ export default async function ActivityDetailPage({ params }) {
               {/* Title + Share */}
               <div className='flex items-center justify-between gap-3 flex-wrap'>
                 <h1 className='text-3xl md:text-4xl font-bold text-slate-900'>
-                  {act.title}
+                  {act.name}
                 </h1>
               </div>
 
-              <div className='mt-3 flex flex-wrap items-center gap-3 text-sm'>
+              {/* <div className='mt-3 flex flex-wrap items-center gap-3 text-sm'>
                 <span className='inline-flex items-center rounded-full bg-sky-100 px-3 py-1 font-medium text-sky-700'>
                   {act.category}
                 </span>
@@ -110,7 +113,7 @@ export default async function ActivityDetailPage({ params }) {
                 >
                   {isPast ? 'Selesai' : 'Akan datang'}
                 </span>
-              </div>
+              </div> */}
 
               {/* meta */}
               <div className='flex mt-4 text-base text-slate-700 max-w-md space-y-2 space-x-10'>
@@ -194,7 +197,7 @@ export default async function ActivityDetailPage({ params }) {
                       Deskripsi Kegiatan
                     </h2>
                     <p className='mt-2 text-slate-700 text-base leading-relaxed'>
-                      {act.summary ?? 'Tidak ada deskripsi.'}
+                      {act.description ?? 'Tidak ada deskripsi.'}
                     </p>
                   </div>
 
@@ -203,7 +206,12 @@ export default async function ActivityDetailPage({ params }) {
                       Syarat Kandidat Relawan
                     </h2>
 
-                    {Array.isArray(act.requirements) &&
+                    <p className='mt-2 text-slate-700 text-base leading-relaxed'>
+                      {act.volunteerRequirement ??
+                        'Tidak ada syarat kandidat relawan.'}
+                    </p>
+
+                    {/* {Array.isArray(act.requirements) &&
                     act.requirements.length > 0 ? (
                       <ul className='mt-2 list-disc pl-5 text-slate-700 text-base leading-relaxed space-y-1'>
                         {act.requirements.map((req, i) => (
@@ -214,7 +222,7 @@ export default async function ActivityDetailPage({ params }) {
                       <p className='mt-2 text-slate-700 text-base leading-relaxed'>
                         Belum ada syarat kandidat yang tersedia.
                       </p>
-                    )}
+                    )} */}
                   </div>
 
                   {/* Panel Donasi */}
@@ -223,7 +231,11 @@ export default async function ActivityDetailPage({ params }) {
                       Tata Cara Berdonasi
                     </h2>
 
-                    {act.donation_instructions ? (
+                    <p className='mt-2 text-slate-700 text-base leading-relaxed'>
+                      {act.donationInsturction ?? 'Tidak ada cara berdonasi.'}
+                    </p>
+
+                    {/* {act.donation_instructions ? (
                       // whitespace-pre-line agar baris baru dari string ikut tampil rapi
                       <p className='mt-2 text-slate-700 text-base leading-relaxed whitespace-pre-line'>
                         {act.donation_instructions}
@@ -238,21 +250,39 @@ export default async function ActivityDetailPage({ params }) {
                           Unggah bukti pembayaran (bila diminta) dan konfirmasi.
                         </li>
                       </ol>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>
 
-              {/* Card Kuota Relawan */}
-              <RelawanCard
-                act={act}
-                isPast={isPast}
-                params={params}
-                session={session}
-              />
+              {session && session.user.role == 'ORGANISASI' && (
+                <RelawanList rows={act.volunteers} />
+              )}
+
+              {session && session.user.role != 'ORGANISASI' && (
+                <RelawanCard
+                  act={act}
+                  isPast={isPast}
+                  params={params}
+                  session={session}
+                />
+              )}
+
+              {!session && (
+                <RelawanCard
+                  act={act}
+                  isPast={isPast}
+                  params={params}
+                  session={session}
+                />
+              )}
 
               {/* Card Donasi */}
-              <DonationCard act={act} isPast={isPast} activityId={params.id} />
+              {/* <DonationCard act={act} isPast={isPast} activityId={params.id} /> */}
+
+              {session && session.user.role == 'ORGANISASI' && (
+                <ActivityAction activityId={act.id} />
+              )}
             </div>
           </div>
         </div>
