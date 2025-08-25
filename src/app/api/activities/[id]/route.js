@@ -19,6 +19,7 @@ export async function GET(_req, { params }) {
         _count: { select: { volunteers: true, donations: true } },
         volunteers: {
           select: {
+            id: true,
             appliedAt: true,
             status: true,
             user: {

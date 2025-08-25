@@ -17,8 +17,8 @@ export default async function HomePage() {
             Kegiatan di sekitar Anda
           </h1>
           <p className='mt-3 text-slate-700'>
-            Temukan kegiatan sosial, edukasi, dan kesehatan dan mari bergabung
-            dalam kegiatan sebagai relawan!
+            Temukan kegiatan sosial, edukasi, dan kesehatan. <br />
+            Mari bergabung dalam kegiatan sebagai relawan dan donatur!
           </p>
 
           {/* Filters */}

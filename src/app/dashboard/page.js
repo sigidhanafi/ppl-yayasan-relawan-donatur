@@ -1,9 +1,20 @@
-// src/app/dashboard/page.js
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { CircleUser } from 'lucide-react';
 import TopNav from '@/components/TopNav';
+
+async function getOrganization(id) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/organizations/${id}`,
+    { cache: 'no-store' } // selalu fresh
+  );
+  if (!res.ok) {
+    // bisa lempar error / return null
+    return null;
+  }
+  return res.json();
+}
 
 // Helper: format rupiah
 function formatIDR(n) {
@@ -22,6 +33,8 @@ export default async function DashboardPage() {
   // Proteksi
   const session = await getSession();
   if (!session?.user) redirect('/auth');
+
+  const organization = await getOrganization(session.user.organizationId);
 
   // Ambil statistik
   const [activitiesCompleted, volunteersVerified, donationsAgg] =
@@ -42,7 +55,7 @@ export default async function DashboardPage() {
       <TopNav user={session.user} />
 
       {/* Hero */}
-      <section className='bg-gradient-to-b from-sky-50 to-white'>
+      <section className=''>
         <div className='mx-auto max-w-6xl px-4 py-10'>
           <h1 className='text-4xl md:text-5xl font-extrabold tracking-tight'>
             Dashboard
@@ -52,6 +65,19 @@ export default async function DashboardPage() {
           </p>
         </div>
       </section>
+
+      {organization && (
+        <section className=''>
+          <div className='mx-auto max-w-6xl px-4 py-10'>
+            <h2 className='text-xl font-bold text-slate-900'>
+              {organization.name}
+            </h2>
+            <p className='mt-1 text-slate-600'>
+              📍 {organization.address ?? 'Alamat belum tersedia'}
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Cards */}
       <section className='mx-auto max-w-6xl px-4 pb-16'>
