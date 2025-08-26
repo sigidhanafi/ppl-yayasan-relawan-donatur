@@ -32,13 +32,37 @@ export async function GET(_req, { params }) {
             },
           },
         },
+        donations: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            amount: true,
+            method: true,
+            message: true,
+            proofPath: true,
+            status: true,
+          },
+        },
       },
     });
+
+    // query aggregate untuk sum amount donation
+    const donationAggregate = await prisma.donation.aggregate({
+      where: { activityId: idParam },
+      _sum: { amount: true },
+    });
+
+    const result = {
+      ...data,
+      donationAmount: donationAggregate._sum.amount ?? 0,
+    };
 
     if (!data)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    return NextResponse.json(data);
+    return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json(
       { error: e?.message || 'Internal error' },

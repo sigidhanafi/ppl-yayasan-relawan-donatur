@@ -10,7 +10,7 @@ export default function RelawanCard({ act, isPast, params, session }) {
     <div className='mt-6 rounded-sm border border-slate-200 bg-white p-4'>
       <h3 className='text-lg font-semibold text-slate-900'>Kuota Relawan</h3>
       <p className='mt-2 text-slate-700 font-bold'>
-        {act.quota} relawan dibutuhkan
+        {act.quota} relawan dibutuhkan ({act._count.volunteers} pendaftar)
       </p>
       <p className='text-sm text-slate-500'>
         {act.quota > 0

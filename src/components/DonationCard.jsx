@@ -23,14 +23,14 @@ export default function DonationCard({ act, isPast, activityId }) {
 
       <div className='mt-2 flex items-baseline justify-between'>
         <div className='text-slate-700'>
-          💰 Terkumpul: Rp {act.donation_collected.toLocaleString('id-ID')}
-          {typeof act.donation_target === 'number' && (
+          Donasi Terkumpul: Rp {act.donationAmount.toLocaleString('id-ID')}
+          {/* {typeof act.donation_target === 'number' && (
             <> / Rp {act.donation_target.toLocaleString('id-ID')}</>
-          )}
+          )} */}
         </div>
-        {typeof pct === 'number' && (
+        {/* {typeof pct === 'number' && (
           <span className='text-sm text-slate-600'>{pct}%</span>
-        )}
+        )} */}
       </div>
 
       {typeof pct === 'number' && (
@@ -58,7 +58,7 @@ export default function DonationCard({ act, isPast, activityId }) {
         <button
           onClick={() => setShowForm(true)}
           disabled={isPast}
-          className={`mt-4 w-full rounded-lg px-4 py-2 font-medium text-white ${
+          className={`mt-4 rounded-lg px-4 py-2 font-medium text-white ${
             isPast
               ? 'bg-slate-400 cursor-not-allowed'
               : 'bg-sky-600 hover:bg-sky-700'

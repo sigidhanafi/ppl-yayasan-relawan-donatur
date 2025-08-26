@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, use } from 'react';
 import { CircleUser } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
@@ -73,6 +73,19 @@ export default function TopNav({ user }) {
               );
             })}
         </nav>
+
+        {!user && (
+          <div className='relative'>
+            <Link
+              href={'/auth'}
+              className={
+                'px-6 py-5 font-medium transition-colors text-slate-900 hover:bg-cyan-200 hover:text-slate-900'
+              }
+            >
+              Login
+            </Link>
+          </div>
+        )}
 
         {user && (
           <div className='relative'>
