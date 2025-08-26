@@ -19,7 +19,7 @@ export async function POST(req, { params }) {
         { status: 400 }
       );
     }
-    
+
     // Perbaikan: Memastikan activityId ada di database
     const activityExists = await prisma.activity.findUnique({
       where: { id: activityId },
@@ -84,9 +84,22 @@ export async function POST(req, { params }) {
         proofPath,
         status: 'PENDING',
       },
+      include: {
+        activity: {
+          include: { organization: true },
+        },
+      },
     });
 
-    console.log('Donasi berhasil disimpan:', donation);
+    // CREATE NOTIFICATION
+    await prisma.notification.create({
+      data: {
+        userId: donation.activity.organization.ownerId, // id owner organisasi
+        message: `${name} melakukan donasi pada kegiatan ${donation.activity.name}`,
+        kind: 'DONATION_APPLY',
+        url: `/activities/${activityId}`,
+      },
+    });
 
     return NextResponse.json({
       ok: true,
