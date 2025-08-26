@@ -12,11 +12,12 @@ export async function POST(req) {
     const form = await req.formData();
     const choice = (form.get('choice') || '').toString(); // 'RELAWAN' | 'OWNER' | 'DONATUR'
     const name = (form.get('name') || '').toString();
+    const phone = (form.get('phone') || '').toString();
     const address = (form.get('address') || '').toString();
 
-    if (!name.trim() || !address.trim()) {
+    if (!name.trim() || !phone.trim() || !address.trim()) {
       return NextResponse.json(
-        { message: 'Nama dan alamat wajib diisi.' },
+        { message: 'Nama, nomor HP dan alamat wajib diisi.' },
         { status: 400 }
       );
     }
@@ -24,7 +25,7 @@ export async function POST(req) {
     // update profil user
     const user = await prisma.user.update({
       where: { email: session.user.email },
-      data: { name, address },
+      data: { name, phone, address },
     });
 
     if (choice === 'OWNER') {

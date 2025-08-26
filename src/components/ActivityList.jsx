@@ -50,10 +50,8 @@ export default function ActivityList({ isShowAdd }) {
     <section className='mx-auto max-w-6xl px-4 pb-16'>
       {loading ? (
         <div className='py-12 text-center text-slate-500'>Memuat…</div>
-      ) : items.length === 0 ? (
-        <div className='py-16 text-center text-slate-500'>
-          Tidak ada kegiatan ditemukan.
-        </div>
+      ) : items.length === 0 && isShowAdd ? (
+        <ActivityCreateCard />
       ) : (
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
           {isShowAdd && <ActivityCreateCard />}

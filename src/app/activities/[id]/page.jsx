@@ -7,6 +7,7 @@ import TopNav from '@/components/TopNav';
 import RelawanList from '@/components/RelawanList';
 import ActivityAction from '@/components/ActivityAction';
 import DonationList from '@/components/DonationList';
+import DotSeparatedList from '@/components/DotSeparateList';
 
 async function getActivity(id) {
   try {
@@ -209,10 +210,13 @@ export default async function ActivityDetailPage({ params }) {
                       Syarat Kandidat Relawan
                     </h2>
 
-                    <p className='mt-2 text-slate-700 text-base leading-relaxed'>
-                      {act.volunteerRequirement ??
-                        'Tidak ada syarat kandidat relawan.'}
-                    </p>
+                    {/* <p className='mt-2 text-slate-700 text-base leading-relaxed'></p> */}
+                    <DotSeparatedList
+                      text={
+                        act.volunteerRequirement ??
+                        'Tidak ada syarat kandidat relawan.'
+                      }
+                    />
 
                     {/* {Array.isArray(act.requirements) &&
                     act.requirements.length > 0 ? (
@@ -235,7 +239,7 @@ export default async function ActivityDetailPage({ params }) {
                     </h2>
 
                     <p className='mt-2 text-slate-700 text-base leading-relaxed'>
-                      {act.donationInsturction ?? 'Tidak ada cara berdonasi.'}
+                      {act.donationInstruction ?? 'Tidak ada cara berdonasi.'}
                     </p>
 
                     {/* {act.donation_instructions ? (

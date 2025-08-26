@@ -13,6 +13,7 @@ export default function OnboardingForm({ user }) {
   const [choice, setChoice] = useState('RELAWAN'); // 'RELAWAN' | 'OWNER'
   const [profile, setProfile] = useState({
     name: user?.name || '',
+    phone: user?.phone || '',
     address: user?.address || '',
     orgName: '',
     orgDescription: '',
@@ -41,15 +42,21 @@ export default function OnboardingForm({ user }) {
     setErr(null);
     setOk(null);
 
-    if (!profile.name.trim() || !profile.address.trim()) {
-      setErr('Nama dan alamat wajib diisi.');
+    if (
+      !profile.name.trim() ||
+      !profile.phone.trim() ||
+      !profile.address.trim()
+    ) {
+      setErr('Nama, nomor HP dan alamat wajib diisi.');
       return;
     }
+
     if (choice === 'OWNER') {
       if (!profile.orgName.trim() || !profile.orgAddress.trim()) {
         setErr('Nama yayasan dan alamat yayasan wajib diisi.');
         return;
       }
+
       if (profile.orgDoc && profile.orgDoc.size > 5 * 1024 * 1024) {
         setErr('Ukuran file maksimal 5 MB.');
         return;
@@ -57,10 +64,12 @@ export default function OnboardingForm({ user }) {
     }
 
     setLoading(true);
+
     try {
       const fd = new FormData();
       fd.append('choice', choice);
       fd.append('name', profile.name);
+      fd.append('phone', profile.phone);
       fd.append('address', profile.address);
       if (choice === 'OWNER') {
         fd.append('orgName', profile.orgName);
@@ -143,6 +152,21 @@ export default function OnboardingForm({ user }) {
           value={profile.name}
           onChange={handleChange}
           placeholder='Nama Lengkap'
+          required
+          disabled={loading}
+          className='mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
+        />
+      </div>
+
+      <div>
+        <label className='block text-sm font-medium text-slate-700'>
+          Nomor HP *
+        </label>
+        <input
+          name='phone'
+          value={profile.phone}
+          onChange={handleChange}
+          placeholder='08xxxxxxxxxx'
           required
           disabled={loading}
           className='mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none'
