@@ -1,36 +1,89 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+-----
 
-First, run the development server:
+### Proyek Yayasan Relawan & Donatur
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Proyek ini adalah aplikasi web untuk mengelola kegiatan yayasan, relawan, dan donasi. Aplikasi ini dibangun dengan **Next.js** dan menggunakan **PostgreSQL** sebagai database, yang semuanya berjalan di dalam kontainer Docker.
+
+-----
+
+### Persyaratan
+
+* **Docker** dan **Docker Compose**
+* **Node.js** (untuk menjalankan skrip `npm` di host, jika diperlukan)
+
+-----
+
+### Instalasi dan Setup
+
+#### 1\. Konfigurasi Lingkungan
+
+Buat file **`.env`** di root proyek Anda dengan variabel lingkungan berikut. Variabel ini digunakan oleh Docker Compose untuk mengonfigurasi database dan Next.js.
+
+```ini
+# PostgreSQL
+POSTGRES_USER=appuser
+POSTGRES_PASSWORD=password
+POSTGRES_DB=appdb
+
+# Next.js
+# DATABASE_URL: Pastikan hostnya sesuai dengan nama layanan Docker (db)
+DATABASE_URL="postgresql://appuser:password@db:5432/appdb?schema=public"
+
+# NextAuth
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="ganti-dengan-string-acak-yang-kuat"
+NEXTAUTH_DEBUG=true
+
+# Google Auth (opsional, jika Anda menggunakan login Google)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### 2\. Jalankan Aplikasi
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Jalankan perintah Docker Compose di terminal dari root proyek Anda:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+docker compose up --build
+```
 
-## Learn More
+Perintah ini akan:
 
-To learn more about Next.js, take a look at the following resources:
+* Membangun citra Docker untuk layanan **`web`** (Next.js) berdasarkan `Dockerfile`.
+* Mengunduh citra **`postgres:16-alpine`** untuk layanan **`db`**.
+* Menjalankan kontainer **`db`** dan menunggu hingga database siap (`healthcheck`).
+* Menjalankan kontainer **`web`** dan secara otomatis menginstal dependensi, menjalankan migrasi Prisma (`prisma migrate dev`), dan memulai server pengembangan.
+* Aplikasi akan dapat diakses di `http://localhost:3000`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+-----
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Mengakses Server dan Database
 
-## Deploy on Vercel
+* **Aplikasi Web**: Buka `http://localhost:3000` di browser Anda.
+* **Database (PostgreSQL)**: Anda dapat terhubung ke database dari host Anda di `localhost:5432`.
+* **Masuk ke Kontainer**: Untuk menjalankan perintah Prisma atau skrip lainnya di dalam kontainer, gunakan perintah berikut:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    ```bash
+    docker compose exec web sh
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-----
+
+### Menjalankan Skrip Seeding
+
+Setelah aplikasi berjalan dan migrasi diterapkan, Anda dapat mengisi database dengan data dummy dengan menjalankan perintah berikut di terminal yang terpisah:
+
+```bash
+docker compose exec web npx prisma db seed
+```
+
+-----
+
+### Struktur Layanan
+
+Aplikasi ini terdiri dari dua layanan utama:
+
+* **`db`**: Kontainer database **PostgreSQL** yang menyimpan data aplikasi. Data disimpan dalam volume `yayasan-indo-data` agar persisten.
+* **`web`**: Kontainer **Next.js** yang menjalankan aplikasi web. Kontainer ini bergantung pada layanan `db` untuk memastikan database sudah siap sebelum aplikasi dimulai.
